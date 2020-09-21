@@ -1,7 +1,7 @@
 .globl factorial
 
 .data
-n: .word 8
+n: .word 7
 
 .text
 main:
@@ -21,4 +21,14 @@ main:
     ecall # Exit
 
 factorial:
-    # YOUR CODE HERE
+    add a1, a0, x0      # put n in a1 for decrement
+    addi t0, a0, -1
+loop:
+    beq t0, x0, end     #while n > 0
+    addi a1, a1, -1
+    mul a0, a0, a1     # n * n-1
+    addi t0, t0, -1
+    jal x0, loop
+end:
+    jr ra
+
