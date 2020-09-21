@@ -62,20 +62,37 @@ map:
     # - 4 for the size of the array
     # - 4 more for the pointer to the next node
 mapLoop:
-    add t1, s0, x0      # load the address of the array of current node into t1
+    # change 1
+    lw t1, 0(s0)       # load the address of the array of current node into t1
     lw t2, 4(s0)        # load the size of the node's array into t2
 
-    add t1, t1, t0      # offset the array address by the count
+
+    # change 2   offset array address by 4 bytes, not 1
+    li t3, 4
+    mul t3, t3, t0
+    addi t1, t1, t3      # offset the array address by count * 4
     lw a0, 0(t1)        # load the value at that address into a0
 
+    # change 4  saving ra and t1
+    addi sp, sp, -8
+    sw ra, 0(sp)
+    sw t1, 4(sp)
+
     jalr s1             # call the function on that value.
+
+    lw ra, 0(sp)
+    lw t1, 4(sp)
+    addi sp, sp, 8
 
     sw a0, 0(t1)        # store the returned value back into the array
     addi t0, t0, 1      # increment the count
     bne t0, t2, mapLoop # repeat if we haven't reached the array size yet
 
+    # change 5, use lw for address not la
     la a0, 8(s0)        # load the address of the next node into a0
-    lw a1, 0(s1)        # put the address of the function back into a1 to prepare for the recursion
+    
+    # change 3, just move s1 back to a1
+    mv a1, s1        # put the address of the function back into a1 to prepare for the recursion
 
     jal  map            # recurse
 done:
